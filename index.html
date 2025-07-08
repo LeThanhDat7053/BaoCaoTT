@@ -1,241 +1,44 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Gửi Báo Cáo PDF</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f8;
-      padding: 30px;
-      max-width: 700px;
-      margin: auto;
-      color: #333;
-    }
+<script>
+  function showInputs() {
+    document.getElementById('inputFields').classList.remove('hidden');
+  }
 
-    h2 {
-      text-align: center;
-      color: #007BFF;
-    }
+  document.getElementById('reportForm').addEventListener('submit', function (e) {
+    e.preventDefault(); // Chặn gửi mặc định
+    const form = this;
+    const formData = new FormData(form);
 
-    .report-type {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
+    // Hiện modal loading
+    const modal = document.getElementById('thankModal');
+    const modalContent = document.getElementById('modalContent');
+    const statusText = document.getElementById('statusText');
+    const spinner = document.getElementById('loadingSpinner');
 
-    .radio-option {
-      background: #fff;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      padding: 15px 30px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 16px;
-      user-select: none;
-    }
+    modal.style.display = 'flex';
+    statusText.innerText = 'Đang gửi báo cáo, vui lòng chờ...';
+    spinner.style.display = 'block';
 
-    .radio-option:hover {
-      border-color: #007BFF;
-      background: #eaf2ff;
-    }
+    fetch(form.action, {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.text())
+    .then(html => {
+      spinner.style.display = 'none';
+      modalContent.innerHTML = html;
 
-    input[type="radio"] {
-      display: none;
-    }
-
-    input[type="radio"]:checked + label {
-      border-color: #007BFF;
-      background: #eaf2ff;
-      color: #007BFF;
-      font-weight: bold;
-    }
-
-    #inputFields {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-
-    .file-upload {
-      margin-bottom: 20px;
-    }
-
-    .file-upload label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .file-upload input[type="file"] {
-      width: 100%;
-      padding: 12px;
-      border: 2px dashed #ccc;
-      border-radius: 10px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: border-color 0.3s;
-    }
-
-    .file-upload input[type="file"]:hover {
-      border-color: #007BFF;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    /* Modal overlay */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.4);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 30px 40px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 18px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
-
-    /* Spinner */
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 5px solid #ccc;
-      border-top: 5px solid #007BFF;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .success {
-      font-size: 24px;
-      color: green;
-    }
-  </style>
-</head>
-<body>
-  <h2>📄 Gửi Báo Cáo PDF</h2>
-  <form id="reportForm" method="POST" action="https://primary-production-50e0.up.railway.app/webhook/custom-ui-start" enctype="multipart/form-data">
-    
-    <div class="report-type">
-      <input type="radio" name="loai" id="thang" value="Tháng" required onchange="showInputs()">
-      <label class="radio-option" for="thang">📆 Tháng</label>
-
-      <input type="radio" name="loai" id="nam" value="Năm" required onchange="showInputs()">
-      <label class="radio-option" for="nam">📅 Năm</label>
-    </div>
-
-    <div id="inputFields" class="hidden">
-      <div class="file-upload">
-        <label>📎 Báo Cáo 1 (PDF):</label>
-        <input type="file" name="file1" accept=".pdf" required>
-      </div>
-
-      <div class="file-upload">
-        <label>📎 Báo Cáo 2 (PDF):</label>
-        <input type="file" name="file2" accept=".pdf" required>
-      </div>
-
-      <div class="file-upload">
-        <label>📎 Báo Cáo 3 (PDF):</label>
-        <input type="file" name="file3" accept=".pdf" required>
-      </div>
-
-      <div class="file-upload">
-        <label>📎 Báo Cáo 4 (PDF):</label>
-        <input type="file" name="file4" accept=".pdf" required>
-      </div>
-
-      <button type="submit">🚀 Gửi báo cáo</button>
-    </div>
-  </form>
-
-  <!-- Modal Loading + Kết quả -->
-  <div id="thankModal" class="modal">
-    <div class="modal-content" id="modalContent">
-      <div class="spinner" id="loadingSpinner"></div>
-      <div id="statusText">Đang gửi báo cáo, vui lòng chờ...</div>
-    </div>
-  </div>
-
-  <script>
-    function showInputs() {
-      document.getElementById('inputFields').classList.remove('hidden');
-    }
-
-    document.getElementById('reportForm').addEventListener('submit', function (e) {
-      e.preventDefault(); // Chặn gửi mặc định
-      const form = this;
-      const formData = new FormData(form);
-
-      // Hiện modal loading
-      const modal = document.getElementById('thankModal');
-      const modalContent = document.getElementById('modalContent');
-      const statusText = document.getElementById('statusText');
-      const spinner = document.getElementById('loadingSpinner');
-
-      modal.style.display = 'flex';
-      statusText.innerText = 'Đang gửi báo cáo, vui lòng chờ...';
-      spinner.style.display = 'block';
-
-      fetch(form.action, {
-        method: 'POST',
-        body: formData
-      }).then(res => {
-        // Sau khi thành công
-        spinner.style.display = 'none';
-        statusText.innerHTML = '<div class="success">✅ Gửi thành công!</div><div>Vui lòng đợi ít phút để nhận kết quả.</div><div>Đang quay lại trang chủ...</div>';
-
-        setTimeout(() => {
-          modal.style.display = 'none';
-          form.reset();
-          document.getElementById('inputFields').classList.add('hidden');
-          document.querySelectorAll('input[name="loai"]').forEach(r => r.checked = false);
-        }, 5000);
-      }).catch(err => {
-        spinner.style.display = 'none';
-        statusText.innerHTML = '❌ Gửi thất bại. Vui lòng thử lại sau.';
-        console.error(err);
-        setTimeout(() => modal.style.display = 'none', 4000);
-      });
+      setTimeout(() => {
+        modal.style.display = 'none';
+        form.reset();
+        document.getElementById('inputFields').classList.add('hidden');
+        document.querySelectorAll('input[name="loai"]').forEach(r => r.checked = false);
+      }, 7000);
+    })
+    .catch(err => {
+      spinner.style.display = 'none';
+      statusText.innerHTML = '❌ Gửi thất bại. Vui lòng thử lại sau!';
+      console.error(err);
+      setTimeout(() => modal.style.display = 'none', 4000);
     });
-  </script>
-</body>
-</html>
+  });
+</script>
