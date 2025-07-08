@@ -218,9 +218,10 @@
       fetch(form.action, {
         method: 'POST',
         body: formData
-      }).then(res => res.text()).then(html => {
+      }).then(res => {
+        // Sau khi thành công
         spinner.style.display = 'none';
-        modalContent.innerHTML = html; // Gán trực tiếp HTML trả về từ n8n
+        statusText.innerHTML = '<div class="success">✅ Gửi thành công!</div><div>Vui lòng đợi ít phút để nhận kết quả.</div><div>Đang quay lại trang chủ...</div>';
       });
         setTimeout(() => {
           modal.style.display = 'none';
