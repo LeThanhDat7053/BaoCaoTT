@@ -218,10 +218,9 @@
       fetch(form.action, {
         method: 'POST',
         body: formData
-      }).then(res => {
-        // Sau khi thành công
+      }).then(res => res.text()).then(html => {
         spinner.style.display = 'none';
-        statusText.innerHTML = '<div class="success">✅ Gửi thành công!</div><div>Vui lòng đợi ít phút để nhận kết quả.</div><div>Đang quay lại trang chủ...</div>';
+        modalContent.innerHTML = html;<div>Đang quay lại trang chủ...</div>';
 
         setTimeout(() => {
           modal.style.display = 'none';
