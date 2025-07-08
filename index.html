@@ -18,6 +18,49 @@
       color: #007BFF;
     }
 
+    .hidden {
+      display: none;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .modal-box input {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .modal-box button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
     .report-type {
       display: flex;
       justify-content: center;
@@ -83,7 +126,7 @@
       border-color: #007BFF;
     }
 
-    button {
+    button[type="submit"] {
       width: 100%;
       padding: 14px;
       background-color: #007BFF;
@@ -95,15 +138,11 @@
       transition: background 0.3s;
     }
 
-    button:hover {
+    button[type="submit"]:hover {
       background-color: #0056b3;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    /* Modal overlay */
+    /* Modal Loading */
     .modal {
       display: none;
       position: fixed;
@@ -129,7 +168,6 @@
       gap: 15px;
     }
 
-    /* Spinner */
     .spinner {
       width: 40px;
       height: 40px;
@@ -151,6 +189,15 @@
   </style>
 </head>
 <body>
+  <div id="passwordModal" class="modal-overlay">
+    <div class="modal-box">
+      <h3>🔒 Nhập mật khẩu để tiếp tục</h3>
+      <input type="password" id="passwordInput" placeholder="Mật khẩu...">
+      <button onclick="checkPassword()">Xác nhận</button>
+      <div id="passwordError" style="color:red; margin-top:10px;"></div>
+    </div>
+  </div>
+
   <h2>📄 Gửi Báo Cáo PDF</h2>
   <form id="reportForm" method="POST" action="https://primary-production-50e0.up.railway.app/webhook/custom-ui-start" enctype="multipart/form-data">
     
@@ -187,7 +234,7 @@
     </div>
   </form>
 
-  <!-- Modal Loading + Kết quả -->
+  <!-- Modal gửi -->
   <div id="thankModal" class="modal">
     <div class="modal-content" id="modalContent">
       <div class="spinner" id="loadingSpinner"></div>
@@ -196,46 +243,57 @@
   </div>
 
   <script>
-  function showInputs() {
-    document.getElementById('inputFields').classList.remove('hidden');
-  }
+    const defaultPassword = 'duongthunhi@123';
 
-  document.getElementById('reportForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const form = this;
-    const formData = new FormData(form);
+    function checkPassword() {
+      const passInput = document.getElementById('passwordInput').value.trim();
+      const errorText = document.getElementById('passwordError');
 
-    const modal = document.getElementById('thankModal');
-    const statusText = document.getElementById('statusText');
-    const spinner = document.getElementById('loadingSpinner');
+      if (passInput === defaultPassword) {
+        document.getElementById('passwordModal').style.display = 'none';
+      } else {
+        errorText.textContent = '❌ Mật khẩu không đúng!';
+      }
+    }
 
-    modal.style.display = 'flex';
-    statusText.innerText = 'Đang gửi báo cáo, vui lòng chờ...';
-    spinner.style.display = 'block';
+    function showInputs() {
+      document.getElementById('inputFields').classList.remove('hidden');
+    }
 
-    fetch(form.action, {
-      method: 'POST',
-      body: formData
-    })
-    .then(res => {
-      spinner.style.display = 'none';
-      statusText.innerHTML = '<div class="success">✅ Gửi thành công!</div><div>Chúng tôi sẽ gửi kết quả qua email trong ít phút.</div>';
+    document.getElementById('reportForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = this;
+      const formData = new FormData(form);
 
-      setTimeout(() => {
-        modal.style.display = 'none';
-        form.reset();
-        document.getElementById('inputFields').classList.add('hidden');
-        document.querySelectorAll('input[name="loai"]').forEach(r => r.checked = false);
-      }, 5000);
-    })
-    .catch(err => {
-      spinner.style.display = 'none';
-      statusText.innerHTML = '❌ Gửi thất bại. Vui lòng thử lại sau!';
-      console.error(err);
-      setTimeout(() => modal.style.display = 'none', 4000);
+      const modal = document.getElementById('thankModal');
+      const statusText = document.getElementById('statusText');
+      const spinner = document.getElementById('loadingSpinner');
+
+      modal.style.display = 'flex';
+      statusText.innerText = 'Đang gửi báo cáo, vui lòng chờ...';
+      spinner.style.display = 'block';
+
+      fetch(form.action, {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => {
+        spinner.style.display = 'none';
+        statusText.innerHTML = '<div class="success">✅ Gửi thành công!</div><div>Chúng tôi sẽ gửi kết quả qua email trong ít phút.</div>';
+        setTimeout(() => {
+          modal.style.display = 'none';
+          form.reset();
+          document.getElementById('inputFields').classList.add('hidden');
+          document.querySelectorAll('input[name="loai"]').forEach(r => r.checked = false);
+        }, 5000);
+      })
+      .catch(err => {
+        spinner.style.display = 'none';
+        statusText.innerHTML = '❌ Gửi thất bại. Vui lòng thử lại sau!';
+        console.error(err);
+        setTimeout(() => modal.style.display = 'none', 4000);
+      });
     });
-  });
-</script>
-
+  </script>
 </body>
 </html>
