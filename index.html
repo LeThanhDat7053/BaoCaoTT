@@ -196,48 +196,46 @@
   </div>
 
   <script>
-  function showInputs() {
-    document.getElementById('inputFields').classList.remove('hidden');
-  }
+    function showInputs() {
+      document.getElementById('inputFields').classList.remove('hidden');
+    }
 
-  document.getElementById('reportForm').addEventListener('submit', function (e) {
-    e.preventDefault(); // Chặn gửi mặc định
-    const form = this;
-    const formData = new FormData(form);
+    document.getElementById('reportForm').addEventListener('submit', function (e) {
+      e.preventDefault(); // Chặn gửi mặc định
+      const form = this;
+      const formData = new FormData(form);
 
-    // Hiện modal loading
-    const modal = document.getElementById('thankModal');
-    const modalContent = document.getElementById('modalContent');
-    const statusText = document.getElementById('statusText');
-    const spinner = document.getElementById('loadingSpinner');
+      // Hiện modal loading
+      const modal = document.getElementById('thankModal');
+      const modalContent = document.getElementById('modalContent');
+      const statusText = document.getElementById('statusText');
+      const spinner = document.getElementById('loadingSpinner');
 
-    modal.style.display = 'flex';
-    statusText.innerText = 'Đang gửi báo cáo, vui lòng chờ...';
-    spinner.style.display = 'block';
+      modal.style.display = 'flex';
+      statusText.innerText = 'Đang gửi báo cáo, vui lòng chờ...';
+      spinner.style.display = 'block';
 
-    fetch(form.action, {
-      method: 'POST',
-      body: formData
-    })
-    .then(res => res.text())
-    .then(html => {
-      spinner.style.display = 'none';
-      modalContent.innerHTML = html;
+      fetch(form.action, {
+        method: 'POST',
+        body: formData
+      }).then(res => {
+        // Sau khi thành công
+        spinner.style.display = 'none';
+        statusText.innerHTML = '<div class="success">✅ Gửi thành công!</div><div>Vui lòng đợi ít phút để nhận kết quả.</div><div>Đang quay lại trang chủ...</div>';
 
-      setTimeout(() => {
-        modal.style.display = 'none';
-        form.reset();
-        document.getElementById('inputFields').classList.add('hidden');
-        document.querySelectorAll('input[name="loai"]').forEach(r => r.checked = false);
-      }, 7000);
-    })
-    .catch(err => {
-      spinner.style.display = 'none';
-      statusText.innerHTML = '❌ Gửi thất bại. Vui lòng thử lại sau!';
-      console.error(err);
-      setTimeout(() => modal.style.display = 'none', 4000);
+        setTimeout(() => {
+          modal.style.display = 'none';
+          form.reset();
+          document.getElementById('inputFields').classList.add('hidden');
+          document.querySelectorAll('input[name="loai"]').forEach(r => r.checked = false);
+        }, 5000);
+      }).catch(err => {
+        spinner.style.display = 'none';
+        statusText.innerHTML = '❌ Gửi thất bại. Vui lòng thử lại sau.';
+        console.error(err);
+        setTimeout(() => modal.style.display = 'none', 4000);
+      });
     });
-  });
-</script>
+  </script>
 </body>
 </html>
