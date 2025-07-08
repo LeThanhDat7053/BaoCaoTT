@@ -4,13 +4,11 @@
   }
 
   document.getElementById('reportForm').addEventListener('submit', function (e) {
-    e.preventDefault(); // Chặn gửi mặc định
+    e.preventDefault();
     const form = this;
     const formData = new FormData(form);
 
-    // Hiện modal loading
     const modal = document.getElementById('thankModal');
-    const modalContent = document.getElementById('modalContent');
     const statusText = document.getElementById('statusText');
     const spinner = document.getElementById('loadingSpinner');
 
@@ -22,17 +20,16 @@
       method: 'POST',
       body: formData
     })
-    .then(res => res.text())
-    .then(html => {
+    .then(res => {
       spinner.style.display = 'none';
-      modalContent.innerHTML = html;
+      statusText.innerHTML = '<div class="success">✅ Gửi thành công!</div><div>Chúng tôi sẽ gửi kết quả qua email trong ít phút.</div>';
 
       setTimeout(() => {
         modal.style.display = 'none';
         form.reset();
         document.getElementById('inputFields').classList.add('hidden');
         document.querySelectorAll('input[name="loai"]').forEach(r => r.checked = false);
-      }, 7000);
+      }, 5000);
     })
     .catch(err => {
       spinner.style.display = 'none';
